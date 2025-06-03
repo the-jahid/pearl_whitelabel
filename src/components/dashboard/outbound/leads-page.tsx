@@ -258,27 +258,21 @@ interface Lead {
   lastCalled?: string
 }
 
-interface CallResponse {
-  id: string
-  from: string
-  to: string
-  queuePosition: number
+interface BulkCallSettings {
+  delayBetweenCalls: number;
 }
 
-interface CallError {
-  type: string
-  title: string
-  status: number
-  detail: string
-  instance: string
-  errors: Record<string, any>
+interface BulkCallProgress {
+  current: number;
+  total: number;
+  currentLead: Lead | null;
 }
 
 export default function LeadsPage() {
   const [showAddLead, setShowAddLead] = useState(false)
   const [leads, setLeads] = useState<Lead[]>([])
   const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
+  const [statusFilter, setStatusFilter] = useState<string>("all")
   const [rowsToShow, setRowsToShow] = useState(10)
   const [currentPage, setCurrentPage] = useState(1)
   const { toast, ToastContainer } = useToast()
@@ -866,7 +860,7 @@ rahman,+8801555123456`
                       <Checkbox id="terms" checked={agreeTerms} onCheckedChange={setAgreeTerms} className="mt-1" />
                       <Label htmlFor="terms" className="text-xs text-gray-600 leading-relaxed">
                         By checking this box, I represent and agree that I use AI-powered calls and texts provided by
-                        the platform ("AI Calls") in compliance with applicable laws and regulations. I confirm that I:
+                        the platform (&quot;AI Calls&quot;) in compliance with applicable laws and regulations. I confirm that I:
                         (a) do not initiate AI Calls without prior explicit consent from the recipients; (b) clearly
                         identify my company as the responsible entity at the beginning of the AI Calls; (c) provide an
                         easy opt-out method immediately after I identify my company; and (d) do not generate deceptive

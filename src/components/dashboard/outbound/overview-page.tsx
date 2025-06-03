@@ -60,7 +60,7 @@ export default function OverviewPage() {
                 <User className="h-4 w-4 text-gray-500" />
                 <span className="text-sm text-gray-600">Pearl</span>
               </div>
-              <div className="text-sm text-black">Outbound Claudia AI: "AI TEAM" Prompt Script 9 MAG h 12:00</div>
+              <div className="text-sm text-black">Outbound Claudia AI: &quot;AI TEAM&quot; Prompt Script 9 MAG h 12:00</div>
 
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-gray-500" />
