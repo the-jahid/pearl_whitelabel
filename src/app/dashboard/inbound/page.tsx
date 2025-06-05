@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 
 export default function Dashboard() {
   const [creatorName, setCreatorName] = useState("");
-  const [platform, setPlatform] = useState("OnlyFans");
+ 
 
   return (
     <div className="min-h-screen bg-white text-black p-4">

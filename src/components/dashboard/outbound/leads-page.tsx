@@ -282,16 +282,6 @@ interface CallRecord {
   status: "successful" | "failed"
 }
 
-interface BulkCallSettings {
-  delayBetweenCalls: number
-}
-
-interface BulkCallProgress {
-  current: number
-  total: number
-  currentLead: Lead | null
-}
-
 export default function LeadsManagement() {
   const { user } = useUser()
   const [currentView, setCurrentView] = useState<"leads" | "call-records" | "add-lead">("leads")
@@ -299,8 +289,7 @@ export default function LeadsManagement() {
   const [callRecords, setCallRecords] = useState<CallRecord[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [callRecordsSearchTerm, setCallRecordsSearchTerm] = useState("")
-  const [/* eslint-disable-next-line @typescript-eslint/no-unused-vars */ statusFilter, setStatusFilter] =
-    useState("all")
+  const [statusFilter] = useState("all")
   const [rowsToShow, setRowsToShow] = useState(10)
   const [callRecordsRowsToShow, setCallRecordsRowsToShow] = useState(10)
   const [currentPage, setCurrentPage] = useState(1)
@@ -333,8 +322,8 @@ export default function LeadsManagement() {
     if (savedLeads) {
       try {
         setLeads(JSON.parse(savedLeads))
-      } catch (error) {
-        console.error("Error parsing saved leads:", error)
+      } catch (_error) {
+        console.error("Error parsing saved leads:", _error)
       }
     }
 
@@ -342,8 +331,8 @@ export default function LeadsManagement() {
     if (savedRecords) {
       try {
         setCallRecords(JSON.parse(savedRecords))
-      } catch (error) {
-        console.error("Error parsing saved call records:", error)
+      } catch (_error) {
+        console.error("Error parsing saved call records:", _error)
       }
     }
   }, [])
@@ -382,8 +371,8 @@ export default function LeadsManagement() {
     if (existingRecords) {
       try {
         updatedCallRecords = JSON.parse(existingRecords)
-      } catch (error) {
-        console.error("Error parsing existing call records:", error)
+      } catch (_error) {
+        console.error("Error parsing existing call records:", _error)
         updatedCallRecords = []
       }
     }
@@ -558,7 +547,7 @@ export default function LeadsManagement() {
                   if (!isNaN(numericValue)) {
                     phone = Math.round(numericValue).toString()
                   }
-                } catch (error) {
+                } catch (_error) {
                   console.warn("Could not parse scientific notation:", phone)
                 }
               }
@@ -630,11 +619,11 @@ export default function LeadsManagement() {
         if (event.target) {
           event.target.value = ""
         }
-      } catch (error) {
-        console.error("CSV parsing error:", error)
+      } catch (_error) {
+        console.error("CSV parsing error:", _error)
         toast({
           title: "Error",
-          description: `Failed to parse CSV file: ${error instanceof Error ? error.message : "Unknown error"}`,
+          description: `Failed to parse CSV file: ${_error instanceof Error ? _error.message : "Unknown error"}`,
           variant: "destructive",
         })
       }
@@ -717,7 +706,7 @@ export default function LeadsManagement() {
           variant: "destructive",
         })
       }
-    } catch (error) {
+    } catch (_error) {
       const retryCount = (lead.retryCount || 0) + 1
       setLeads((prev) =>
         prev.map((l) =>
@@ -1000,7 +989,9 @@ rahman,+8801555123456`
 
                     <div>
                       <Label className="text-black mb-2 block">Reference ID</Label>
-                      <p className="text-gray-600 text-sm mb-3">This is the lead's ID in your CRM for reference.</p>
+                      <p className="text-gray-600 text-sm mb-3">
+                        This is the lead&apos;s ID in your CRM for reference.
+                      </p>
                       <Input
                         type="text"
                         value={referenceId}
@@ -1117,7 +1108,7 @@ rahman,+8801555123456`
                     <Calendar className="h-5 w-5 text-orange-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Today's Calls</p>
+                    <p className="text-sm text-gray-600">Today&apos;s Calls</p>
                     <p className="text-2xl font-bold">
                       {
                         callRecords.filter((r) => new Date(r.timestamp).toDateString() === new Date().toDateString())

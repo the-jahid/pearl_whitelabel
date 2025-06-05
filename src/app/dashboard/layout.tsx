@@ -9,7 +9,7 @@ import {
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
-import { UserButton, UserProfile } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 
 
 
