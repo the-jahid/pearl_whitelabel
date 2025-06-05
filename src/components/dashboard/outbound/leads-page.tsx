@@ -322,8 +322,8 @@ export default function LeadsManagement() {
     if (savedLeads) {
       try {
         setLeads(JSON.parse(savedLeads))
-      } catch (_error) {
-        console.error("Error parsing saved leads:", _error)
+      } catch (error) {
+        console.error("Error parsing saved leads:", error)
       }
     }
 
@@ -331,8 +331,8 @@ export default function LeadsManagement() {
     if (savedRecords) {
       try {
         setCallRecords(JSON.parse(savedRecords))
-      } catch (_error) {
-        console.error("Error parsing saved call records:", _error)
+      } catch (error) {
+        console.error("Error parsing saved call records:", error)
       }
     }
   }, [])
@@ -371,8 +371,8 @@ export default function LeadsManagement() {
     if (existingRecords) {
       try {
         updatedCallRecords = JSON.parse(existingRecords)
-      } catch (_error) {
-        console.error("Error parsing existing call records:", _error)
+      } catch (error) {
+        console.error("Error parsing existing call records:", error)
         updatedCallRecords = []
       }
     }
@@ -547,8 +547,8 @@ export default function LeadsManagement() {
                   if (!isNaN(numericValue)) {
                     phone = Math.round(numericValue).toString()
                   }
-                } catch (_error) {
-                  console.warn("Could not parse scientific notation:", phone)
+                } catch (error) {
+                  console.warn("Could not parse scientific notation:", phone, error)
                 }
               }
 
@@ -619,11 +619,11 @@ export default function LeadsManagement() {
         if (event.target) {
           event.target.value = ""
         }
-      } catch (_error) {
-        console.error("CSV parsing error:", _error)
+      } catch (error) {
+        console.error("CSV parsing error:", error)
         toast({
           title: "Error",
-          description: `Failed to parse CSV file: ${_error instanceof Error ? _error.message : "Unknown error"}`,
+          description: `Failed to parse CSV file: ${error instanceof Error ? error.message : "Unknown error"}`,
           variant: "destructive",
         })
       }
@@ -706,7 +706,8 @@ export default function LeadsManagement() {
           variant: "destructive",
         })
       }
-    } catch (_error) {
+    } catch (error) {
+      console.error("Network error during call:", error)
       const retryCount = (lead.retryCount || 0) + 1
       setLeads((prev) =>
         prev.map((l) =>
