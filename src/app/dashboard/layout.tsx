@@ -68,7 +68,7 @@ export default function DashboardLayout({
     </div>
   );
 }
-export const Logo = () => {
+const Logo = () => {
   return (
     <a
       href="#"
@@ -85,7 +85,7 @@ export const Logo = () => {
     </a>
   );
 };
-export const LogoIcon = () => {
+ const LogoIcon = () => {
   return (
     <a
       href="#"
