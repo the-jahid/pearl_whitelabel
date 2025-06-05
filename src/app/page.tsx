@@ -1,4 +1,5 @@
 "use client";
+import { HeroSectionOne } from "@/components/hero";
 import {
   Navbar,
   NavBody,
@@ -10,6 +11,7 @@ import {
   MobileNavToggle,
   MobileNavMenu,
 } from "@/components/ui/resizable-navbar";
+import { SignInButton, useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -31,6 +33,8 @@ export default function NavbarDemo() {
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const {isSignedIn} = useAuth();
+
   return (
     <div className="relative w-full">
       <Navbar>
@@ -39,8 +43,8 @@ export default function NavbarDemo() {
           <NavbarLogo />
           <NavItems items={navItems} />
           <div className="flex items-center gap-4">
-            <NavbarButton variant="secondary">Login</NavbarButton>
-            <Link href={'/dashboard'} ><NavbarButton variant="primary">Dashboard</NavbarButton></Link>
+            { !isSignedIn && <NavbarButton variant="primary"><SignInButton />  </NavbarButton>}
+            {isSignedIn &&  <Link href={'/dashboard'} ><NavbarButton variant="primary">Dashboard</NavbarButton></Link>}
           </div>
         </NavBody>
 
@@ -87,7 +91,7 @@ export default function NavbarDemo() {
         </MobileNav>
       </Navbar>
     
-
+      <HeroSectionOne />
       {/* Navbar */}
     </div>
   );

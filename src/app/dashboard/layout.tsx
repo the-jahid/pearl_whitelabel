@@ -9,6 +9,9 @@ import {
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
+import { UserButton, UserProfile } from "@clerk/nextjs";
+
+
 
 export default function DashboardLayout({
   children,
@@ -56,23 +59,9 @@ export default function DashboardLayout({
               ))}
             </div>
           </div>
-          {/* <div>
-            <SidebarLink
-              link={{
-                label: "Manu Arora",
-                href: "#",
-                icon: (
-                  <img
-                    src="https://assets.aceternity.com/manu.png"
-                    className="h-7 w-7 shrink-0 rounded-full"
-                    width={50}
-                    height={50}
-                    alt="Avatar"
-                  />
-                ),
-              }}
-            />
-          </div> */}
+          <div>
+           <UserButton />
+          </div>
         </SidebarBody>
       </Sidebar>
       {children}

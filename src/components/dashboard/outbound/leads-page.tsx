@@ -1,9 +1,22 @@
 "use client"
 
 import React from "react"
-
 import { useState, useEffect } from "react"
-import { Phone, Plus, Trash2, Download, Search, ArrowLeft, Play, Pause, Check, ChevronDown } from "lucide-react"
+import {
+  Phone,
+  Plus,
+  Trash2,
+  Download,
+  Search,
+  ArrowLeft,
+  Play,
+  Pause,
+  Check,
+  ChevronDown,
+  Calendar,
+  BarChart3,
+} from "lucide-react"
+import { useUser } from "@clerk/nextjs"
 
 // Toast Hook
 function useToast() {
@@ -100,10 +113,11 @@ const Badge = ({
   children,
   className = "",
   variant = "default",
-}: { children: React.ReactNode; className?: string; variant?: "default" | "secondary" }) => {
+}: { children: React.ReactNode; className?: string; variant?: "default" | "secondary" | "success" }) => {
   const variants = {
     default: "bg-blue-600 text-white",
     secondary: "bg-gray-100 text-gray-900",
+    success: "bg-green-600 text-white",
   }
 
   return (
@@ -149,10 +163,7 @@ const Select = ({
       {isOpen && (
         <div className="absolute top-full z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 bg-white py-1 shadow-lg">
           {React.Children.map(children, (child) => {
-            if (
-              React.isValidElement(child) &&
-              (child as React.ReactElement<{ value: string }>).props.value
-            ) {
+            if (React.isValidElement(child) && (child as React.ReactElement<{ value: string }>).props.value) {
               const childElement = child as React.ReactElement<{ value: string; children: React.ReactNode }>
               return (
                 <div
@@ -194,9 +205,7 @@ interface SelectItemProps {
   children: React.ReactNode
 }
 
-const SelectItem = ({ value, children }: SelectItemProps) => (
-  <div data-value={value}>{children}</div>
-)
+const SelectItem = ({ value, children }: SelectItemProps) => <div data-value={value}>{children}</div>
 
 const Tabs = ({
   children,
@@ -245,7 +254,7 @@ const TabsContent = ({
   )
 }
 
-// Main Component
+// Main Component Interfaces
 interface Lead {
   id: string
   firstName: string
@@ -258,23 +267,44 @@ interface Lead {
   lastCalled?: string
 }
 
+interface CallRecord {
+  id: string
+  callId: string
+  authId: string
+  leadId: string
+  leadData: {
+    firstName: string
+    phoneNumber: string
+    timeZone: string
+    referenceId?: string
+  }
+  timestamp: string
+  status: "successful" | "failed"
+}
+
 interface BulkCallSettings {
-  delayBetweenCalls: number;
+  delayBetweenCalls: number
 }
 
 interface BulkCallProgress {
-  current: number;
-  total: number;
-  currentLead: Lead | null;
+  current: number
+  total: number
+  currentLead: Lead | null
 }
 
-export default function LeadsPage() {
-  const [showAddLead, setShowAddLead] = useState(false)
+export default function LeadsManagement() {
+  const { user } = useUser()
+  const [currentView, setCurrentView] = useState<"leads" | "call-records" | "add-lead">("leads")
   const [leads, setLeads] = useState<Lead[]>([])
+  const [callRecords, setCallRecords] = useState<CallRecord[]>([])
   const [searchTerm, setSearchTerm] = useState("")
-  const [/* eslint-disable-next-line @typescript-eslint/no-unused-vars */ statusFilter, setStatusFilter] = useState("all")
+  const [callRecordsSearchTerm, setCallRecordsSearchTerm] = useState("")
+  const [/* eslint-disable-next-line @typescript-eslint/no-unused-vars */ statusFilter, setStatusFilter] =
+    useState("all")
   const [rowsToShow, setRowsToShow] = useState(10)
+  const [callRecordsRowsToShow, setCallRecordsRowsToShow] = useState(10)
   const [currentPage, setCurrentPage] = useState(1)
+  const [callRecordsCurrentPage, setCallRecordsCurrentPage] = useState(1)
   const { toast, ToastContainer } = useToast()
 
   // Add Lead Form States
@@ -297,7 +327,7 @@ export default function LeadsPage() {
     currentLead: null as Lead | null,
   })
 
-  // Load leads from localStorage
+  // Load data from localStorage
   useEffect(() => {
     const savedLeads = localStorage.getItem("nlpearl-leads")
     if (savedLeads) {
@@ -307,12 +337,66 @@ export default function LeadsPage() {
         console.error("Error parsing saved leads:", error)
       }
     }
+
+    const savedRecords = localStorage.getItem("nlpearl-call-records")
+    if (savedRecords) {
+      try {
+        setCallRecords(JSON.parse(savedRecords))
+      } catch (error) {
+        console.error("Error parsing saved call records:", error)
+      }
+    }
   }, [])
 
   // Save leads to localStorage
   useEffect(() => {
     localStorage.setItem("nlpearl-leads", JSON.stringify(leads))
   }, [leads])
+
+  // Function to save successful call to localStorage
+  const saveSuccessfulCall = (lead: Lead, callId: string) => {
+    if (!user?.id) {
+      console.error("No user ID available from Clerk")
+      return
+    }
+
+    const callRecord: CallRecord = {
+      id: `call_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      callId,
+      authId: user.id,
+      leadId: lead.id,
+      leadData: {
+        firstName: lead.firstName,
+        phoneNumber: lead.phoneNumber,
+        timeZone: lead.timeZone,
+        referenceId: lead.referenceId,
+      },
+      timestamp: new Date().toISOString(),
+      status: "successful",
+    }
+
+    // Get existing call records
+    const existingRecords = localStorage.getItem("nlpearl-call-records")
+    let updatedCallRecords: CallRecord[] = []
+
+    if (existingRecords) {
+      try {
+        updatedCallRecords = JSON.parse(existingRecords)
+      } catch (error) {
+        console.error("Error parsing existing call records:", error)
+        updatedCallRecords = []
+      }
+    }
+
+    // Add new record to the beginning of the array
+    updatedCallRecords.unshift(callRecord)
+
+    // Save back to localStorage
+    localStorage.setItem("nlpearl-call-records", JSON.stringify(updatedCallRecords))
+    setCallRecords(updatedCallRecords)
+
+    console.log("Call record saved:", callRecord)
+  }
 
   const addLeadManually = (e: React.FormEvent) => {
     e.preventDefault()
@@ -353,7 +437,7 @@ export default function LeadsPage() {
     setPhoneNumber("")
     setReferenceId("")
     setAgreeTerms(false)
-    setShowAddLead(false)
+    setCurrentView("leads")
 
     toast({
       title: "Success",
@@ -530,7 +614,7 @@ export default function LeadsPage() {
 
         // Add leads to the list
         setLeads((prev) => [...newLeads, ...prev])
-        setShowAddLead(false)
+        setCurrentView("leads")
 
         let message = `${newLeads.length} leads imported successfully`
         if (skippedRows > 0) {
@@ -590,6 +674,12 @@ export default function LeadsPage() {
       const data = await response.json()
 
       if (response.ok) {
+        // Generate a call ID (you might get this from your API response)
+        const callId = data.callId || `call_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+
+        // Save successful call to localStorage
+        saveSuccessfulCall(lead, callId)
+
         setLeads((prev) =>
           prev.map((l) =>
             l.id === lead.id
@@ -711,17 +801,6 @@ export default function LeadsPage() {
     }
   }
 
-  const filteredLeads = leads.filter((lead) => {
-    const matchesSearch =
-      lead.firstName.toLowerCase().includes(searchTerm.toLowerCase()) || lead.phoneNumber.includes(searchTerm)
-    const matchesStatus = statusFilter === "all" || lead.status === statusFilter
-    return matchesSearch && matchesStatus
-  })
-
-  const paginatedLeads = filteredLeads.slice((currentPage - 1) * rowsToShow, currentPage * rowsToShow)
-
-  const totalPages = Math.ceil(filteredLeads.length / rowsToShow)
-
   const downloadCSVTemplate = () => {
     const csvContent = `name,number
 jahid,8.8E+12
@@ -738,7 +817,79 @@ rahman,+8801555123456`
     window.URL.revokeObjectURL(url)
   }
 
-  if (showAddLead) {
+  const exportCallRecordsToCSV = () => {
+    const headers = [
+      "Call ID",
+      "Auth ID",
+      "Lead Name",
+      "Phone Number",
+      "Time Zone",
+      "Reference ID",
+      "Timestamp",
+      "Status",
+    ]
+    const csvContent = [
+      headers.join(","),
+      ...callRecords.map((record) =>
+        [
+          record.callId,
+          record.authId,
+          record.leadData.firstName,
+          record.leadData.phoneNumber,
+          record.leadData.timeZone,
+          record.leadData.referenceId || "",
+          record.timestamp,
+          record.status,
+        ].join(","),
+      ),
+    ].join("\n")
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `call-records-${new Date().toISOString().split("T")[0]}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    window.URL.revokeObjectURL(url)
+  }
+
+  const clearAllCallRecords = () => {
+    if (window.confirm("Are you sure you want to clear all call records? This action cannot be undone.")) {
+      localStorage.removeItem("nlpearl-call-records")
+      setCallRecords([])
+    }
+  }
+
+  // Filter data
+  const filteredLeads = leads.filter((lead) => {
+    const matchesSearch =
+      lead.firstName.toLowerCase().includes(searchTerm.toLowerCase()) || lead.phoneNumber.includes(searchTerm)
+    const matchesStatus = statusFilter === "all" || lead.status === statusFilter
+    return matchesSearch && matchesStatus
+  })
+
+  const filteredCallRecords = callRecords.filter((record) => {
+    const matchesSearch =
+      record.leadData.firstName.toLowerCase().includes(callRecordsSearchTerm.toLowerCase()) ||
+      record.leadData.phoneNumber.includes(callRecordsSearchTerm) ||
+      record.callId.toLowerCase().includes(callRecordsSearchTerm.toLowerCase())
+    return matchesSearch
+  })
+
+  // Pagination
+  const paginatedLeads = filteredLeads.slice((currentPage - 1) * rowsToShow, currentPage * rowsToShow)
+  const totalLeadsPages = Math.ceil(filteredLeads.length / rowsToShow)
+
+  const paginatedCallRecords = filteredCallRecords.slice(
+    (callRecordsCurrentPage - 1) * callRecordsRowsToShow,
+    callRecordsCurrentPage * callRecordsRowsToShow,
+  )
+  const totalCallRecordsPages = Math.ceil(filteredCallRecords.length / callRecordsRowsToShow)
+
+  // Add Lead View
+  if (currentView === "add-lead") {
     return (
       <div className="min-h-screen bg-white text-black">
         <ToastContainer />
@@ -747,7 +898,7 @@ rahman,+8801555123456`
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setShowAddLead(false)}
+              onClick={() => setCurrentView("leads")}
               className="text-black hover:bg-gray-100"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -759,10 +910,18 @@ rahman,+8801555123456`
             <CardContent className="p-6">
               <Tabs value={addLeadTab} onValueChange={(value) => setAddLeadTab(value as "manual" | "upload")}>
                 <TabsList className="grid w-full grid-cols-2 bg-gray-100">
-                  <TabsTrigger value="upload" className="data-[state=active]:bg-gray-200" onValueChange={(value) => setAddLeadTab(value as "upload" | "manual")}>
+                  <TabsTrigger
+                    value="upload"
+                    className="data-[state=active]:bg-gray-200"
+                    onValueChange={(value) => setAddLeadTab(value as "upload" | "manual")}
+                  >
                     Upload Files
                   </TabsTrigger>
-                  <TabsTrigger value="manual" className="data-[state=active]:bg-gray-200" onValueChange={(value) => setAddLeadTab(value as "upload" | "manual")}>
+                  <TabsTrigger
+                    value="manual"
+                    className="data-[state=active]:bg-gray-200"
+                    onValueChange={(value) => setAddLeadTab(value as "upload" | "manual")}
+                  >
                     Manually
                   </TabsTrigger>
                 </TabsList>
@@ -788,12 +947,7 @@ rahman,+8801555123456`
                       </Button>
                     </div>
 
-                    <Input
-                      id="csv-upload"
-                      type="file"
-                      accept=".csv"
-                      onChange={handleCSVUpload}
-                    />
+                    <Input id="csv-upload" type="file" accept=".csv" onChange={handleCSVUpload} />
                     <Label htmlFor="csv-upload" className="cursor-pointer">
                       <Button className="bg-blue-600 hover:bg-blue-700">Choose File</Button>
                     </Label>
@@ -860,11 +1014,11 @@ rahman,+8801555123456`
                       <Checkbox id="terms" checked={agreeTerms} onCheckedChange={setAgreeTerms} className="mt-1" />
                       <Label htmlFor="terms" className="text-xs text-gray-600 leading-relaxed">
                         By checking this box, I represent and agree that I use AI-powered calls and texts provided by
-                        the platform (&apos;AI Calls&apos;) in compliance with applicable laws and regulations. I confirm that I:
-                        (a) do not initiate AI Calls without prior explicit consent from the recipients; (b) clearly
-                        identify my company as the responsible entity at the beginning of the AI Calls; (c) provide an
-                        easy opt-out method immediately after I identify my company; and (d) do not generate deceptive
-                        or fraudulent AI Calls.
+                        the platform (&apos;AI Calls&apos;) in compliance with applicable laws and regulations. I
+                        confirm that I: (a) do not initiate AI Calls without prior explicit consent from the recipients;
+                        (b) clearly identify my company as the responsible entity at the beginning of the AI Calls; (c)
+                        provide an easy opt-out method immediately after I identify my company; and (d) do not generate
+                        deceptive or fraudulent AI Calls.
                       </Label>
                     </div>
 
@@ -881,6 +1035,207 @@ rahman,+8801555123456`
     )
   }
 
+  // Call Records View
+  if (currentView === "call-records") {
+    return (
+      <div className="min-h-screen bg-white text-black">
+        <ToastContainer />
+        <div className="container mx-auto p-6">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setCurrentView("leads")}
+                className="text-black hover:bg-gray-100"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <h1 className="text-2xl font-bold">Call Records</h1>
+              <Badge variant="secondary" className="bg-gray-100 text-black">
+                {filteredCallRecords.length}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search records..."
+                  value={callRecordsSearchTerm}
+                  onChange={(e) => setCallRecordsSearchTerm(e.target.value)}
+                  className="pl-10 bg-white border-gray-300 text-black w-64"
+                />
+              </div>
+              <Button
+                onClick={exportCallRecordsToCSV}
+                variant="outline"
+                className="border-gray-300 text-black hover:bg-gray-100"
+                disabled={callRecords.length === 0}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export CSV
+              </Button>
+              <Button onClick={clearAllCallRecords} variant="destructive" disabled={callRecords.length === 0}>
+                Clear All
+              </Button>
+            </div>
+          </div>
+
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <Calendar className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Total Calls</p>
+                    <p className="text-2xl font-bold">{callRecords.length}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Calendar className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Successful Calls</p>
+                    <p className="text-2xl font-bold">{callRecords.filter((r) => r.status === "successful").length}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-orange-100 rounded-lg">
+                    <Calendar className="h-5 w-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Today's Calls</p>
+                    <p className="text-2xl font-bold">
+                      {
+                        callRecords.filter((r) => new Date(r.timestamp).toDateString() === new Date().toDateString())
+                          .length
+                      }
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Call Records Table */}
+          <Card className="bg-white border-gray-200">
+            <CardContent className="p-0">
+              {callRecords.length === 0 ? (
+                <div className="p-8 text-center text-gray-500">
+                  <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                  <p className="text-lg font-medium mb-2">No call records found</p>
+                  <p className="text-sm">Call records will appear here after successful calls are made.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="border-b border-gray-200">
+                        <tr className="text-left">
+                          <th className="p-4 text-gray-600 text-sm">Call ID</th>
+                          <th className="p-4 text-gray-600 text-sm">Lead Name</th>
+                          <th className="p-4 text-gray-600 text-sm">Phone Number</th>
+                          <th className="p-4 text-gray-600 text-sm">Time Zone</th>
+                          <th className="p-4 text-gray-600 text-sm">Reference ID</th>
+                          <th className="p-4 text-gray-600 text-sm">Timestamp</th>
+                          <th className="p-4 text-gray-600 text-sm">Auth ID</th>
+                          <th className="p-4 text-gray-600 text-sm">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {paginatedCallRecords.map((record) => (
+                          <tr key={record.id} className="border-b border-gray-200 hover:bg-gray-50">
+                            <td className="p-4 text-sm font-mono text-blue-600">{record.callId}</td>
+                            <td className="p-4 text-sm font-medium">{record.leadData.firstName}</td>
+                            <td className="p-4 text-sm">{record.leadData.phoneNumber}</td>
+                            <td className="p-4 text-sm text-gray-500">{record.leadData.timeZone}</td>
+                            <td className="p-4 text-sm text-gray-500">{record.leadData.referenceId || "-"}</td>
+                            <td className="p-4 text-sm">
+                              <div>
+                                <div>{new Date(record.timestamp).toLocaleDateString()}</div>
+                                <div className="text-xs text-gray-500">
+                                  {new Date(record.timestamp).toLocaleTimeString()}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-4 text-sm font-mono text-gray-600">{record.authId.slice(0, 8)}...</td>
+                            <td className="p-4">
+                              <Badge variant={record.status === "successful" ? "success" : "secondary"}>
+                                {record.status}
+                              </Badge>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Pagination */}
+                  <div className="flex items-center justify-between p-4 border-t border-gray-200">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-600">Rows to show</span>
+                      <select
+                        value={callRecordsRowsToShow}
+                        onChange={(e) => setCallRecordsRowsToShow(Number(e.target.value))}
+                        className="border border-gray-300 rounded px-2 py-1 text-sm"
+                      >
+                        <option value={10}>10</option>
+                        <option value={25}>25</option>
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm text-gray-600">
+                        Page {callRecordsCurrentPage} of {totalCallRecordsPages}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          onClick={() => setCallRecordsCurrentPage(Math.max(1, callRecordsCurrentPage - 1))}
+                          disabled={callRecordsCurrentPage === 1}
+                          variant="outline"
+                          size="sm"
+                          className="border-gray-300 text-black hover:bg-gray-100"
+                        >
+                          Previous
+                        </Button>
+                        <Button
+                          onClick={() =>
+                            setCallRecordsCurrentPage(Math.min(totalCallRecordsPages, callRecordsCurrentPage + 1))
+                          }
+                          disabled={callRecordsCurrentPage === totalCallRecordsPages}
+                          variant="outline"
+                          size="sm"
+                          className="border-gray-300 text-black hover:bg-gray-100"
+                        >
+                          Next
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
+  }
+
+  // Main Leads View
   return (
     <div className="min-h-screen bg-white text-black">
       <ToastContainer />
@@ -894,22 +1249,15 @@ rahman,+8801555123456`
             </Badge>
           </div>
           <div className="flex items-center gap-4">
-            {/* <Button variant="outline" size="sm" className="border-gray-300 text-black hover:bg-gray-100">
-              <Download className="h-4 w-4" />
-            </Button> */}
             <div className="flex items-center gap-2">
-              {/* <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-32 bg-white border-gray-300">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent className="bg-white border-gray-300">
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="call-successful">Call Successful</SelectItem>
-                  <SelectItem value="need-retry">Need Retry</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                </SelectContent>
-              </Select> */}
+              <Button
+                onClick={() => setCurrentView("call-records")}
+                variant="outline"
+                className="border-gray-300 text-black hover:bg-gray-100"
+              >
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Call Records ({callRecords.length})
+              </Button>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
@@ -920,12 +1268,22 @@ rahman,+8801555123456`
                 />
               </div>
             </div>
-            <Button onClick={() => setShowAddLead(true)} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={() => setCurrentView("add-lead")} className="bg-blue-600 hover:bg-blue-700">
               <Plus className="h-4 w-4 mr-2" />
               Add Lead
             </Button>
           </div>
         </div>
+
+        {/* User Info Display */}
+        {user && (
+          <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <p className="text-sm text-blue-800">
+              Logged in as: <span className="font-medium">{user.emailAddresses[0]?.emailAddress}</span> (ID:{" "}
+              <span className="font-mono text-xs">{user.id}</span>)
+            </p>
+          </div>
+        )}
 
         {/* Bulk Actions */}
         {selectedLeads.size > 0 && (
@@ -944,7 +1302,7 @@ rahman,+8801555123456`
                       onChange={(e) =>
                         setBulkCallSettings((prev) => ({
                           ...prev,
-                          delayBetweenCalls: parseInt(e.target.value, 10) || 30,
+                          delayBetweenCalls: Number.parseInt(e.target.value, 10) || 30,
                         }))
                       }
                       className="w-20 bg-white border-gray-300 text-black"
@@ -1092,7 +1450,7 @@ rahman,+8801555123456`
               </div>
               <div className="flex items-center gap-4">
                 <span className="text-sm text-gray-600">
-                  page {currentPage} of {totalPages}
+                  page {currentPage} of {totalLeadsPages}
                 </span>
                 <div className="flex items-center gap-2">
                   <Button
@@ -1105,8 +1463,8 @@ rahman,+8801555123456`
                     Previous
                   </Button>
                   <Button
-                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(Math.min(totalLeadsPages, currentPage + 1))}
+                    disabled={currentPage === totalLeadsPages}
                     variant="outline"
                     size="sm"
                     className="border-gray-300 text-black hover:bg-gray-100"
