@@ -565,7 +565,7 @@ const OverviewPage = () => {
 
   /* ---- Memo ---- */
   const userEmail = useMemo(() => user?.emailAddresses?.[0]?.emailAddress || "", [user?.emailAddresses])
-  const isConfigured = useMemo(() => campaigns.length > 0, [campaigns.length])
+
 
   // Cost timeline derived from *performance* dataset
   const ourCostTimelinePerf = useMemo(() => {
