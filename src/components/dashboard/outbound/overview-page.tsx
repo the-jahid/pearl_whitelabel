@@ -566,7 +566,6 @@ const OverviewPage = () => {
   /* ---- Memo ---- */
   const userEmail = useMemo(() => user?.emailAddresses?.[0]?.emailAddress || "", [user?.emailAddresses])
 
-
   // Cost timeline derived from *performance* dataset
   const ourCostTimelinePerf = useMemo(() => {
     const src = analyticsPerfData
@@ -936,18 +935,20 @@ const OverviewPage = () => {
       </Button>
     )
     return (
-      <div className="flex flex-wrap items-center gap-2">
-        <Btn p="today" label="Today" />
-        <Btn p="yesterday" label="Yesterday" />
-        <Btn p="thisWeek" label="This Week" />
-        <Btn p="lastWeek" label="Last Week" />
-        <Btn p="thisMonth" label="This Month" />
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-2 sm:gap-3">
+        <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+          <Btn p="today" label="Today" />
+          <Btn p="yesterday" label="Yesterday" />
+          <Btn p="thisWeek" label="This Week" />
+          <Btn p="lastWeek" label="Last Week" />
+          <Btn p="thisMonth" label="This Month" />
+        </div>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <input
             type="number"
             min={1}
             placeholder="Days (e.g. 60, 3, 6, 9)"
-            className="h-9 w-48 rounded-md border px-2 text-sm"
+            className="h-9 w-full sm:w-48 rounded-md border px-2 text-sm"
             value={customDays}
             onChange={(e) => setCustomDays(e.target.value.replace(/[^\d]/g, ""))}
           />
@@ -962,19 +963,21 @@ const OverviewPage = () => {
   /* ---- Loading gates ---- */
   if (!isLoaded) {
     return (
-      <div className="flex items-center justify-center min-h-[100svh]">
-        <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="ml-2">Loading...</span>
+      <div className="flex items-center justify-center min-h-[100svh] px-4">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
+          <span className="text-sm sm:text-base">Loading...</span>
+        </div>
       </div>
     )
   }
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-[100svh]">
-        <div className="text-center px-4">
-          <h2 className="text-xl font-semibold mb-2">Authentication Required</h2>
-          <p className="text-gray-600">Please sign in to continue.</p>
+      <div className="flex items-center justify-center min-h-[100svh] px-4">
+        <div className="text-center max-w-md">
+          <h2 className="text-lg sm:text-xl font-semibold mb-2">Authentication Required</h2>
+          <p className="text-sm sm:text-base text-gray-600">Please sign in to continue.</p>
         </div>
       </div>
     )
@@ -985,8 +988,8 @@ const OverviewPage = () => {
     if (!analyticsOverviewData && activeSection === "overview") {
       return (
         <Card>
-          <CardContent className="p-6 text-center">
-            <p className="text-gray-500 mb-4">No analytics data available.</p>
+          <CardContent className="p-4 sm:p-6 text-center">
+            <p className="text-gray-500 mb-4 text-sm sm:text-base">No analytics data available.</p>
             <Button
               onClick={async () => {
                 if (selectedCampaign) {
@@ -1003,6 +1006,7 @@ const OverviewPage = () => {
                   setAnalyticsLoading(false)
                 }
               }}
+              className="text-sm sm:text-base"
             >
               Load Analytics
             </Button>
@@ -1016,47 +1020,47 @@ const OverviewPage = () => {
         const data = analyticsOverviewData!
         return (
           <div className="space-y-4 lg:space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+            <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
               <Card className="min-w-0">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs lg:text-sm font-medium">Total Calls</CardTitle>
-                  <Phone className="h-4 w-4 text-muted-foreground" />
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
+                  <CardTitle className="text-xs sm:text-sm font-medium truncate">Total Calls</CardTitle>
+                  <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground shrink-0" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-xl lg:text-2xl font-bold">
+                <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+                  <div className="text-lg sm:text-xl lg:text-2xl font-bold">
                     {data.callsStatusOverview.totalCalls.toLocaleString()}
                   </div>
                 </CardContent>
               </Card>
               <Card className="min-w-0">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs lg:text-sm font-medium">Total Leads</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
+                  <CardTitle className="text-xs sm:text-sm font-medium truncate">Total Leads</CardTitle>
+                  <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground shrink-0" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-xl lg:text-2xl font-bold">
+                <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+                  <div className="text-lg sm:text-xl lg:text-2xl font-bold">
                     {data.callsStatusOverview.totalLeads.toLocaleString()}
                   </div>
                 </CardContent>
               </Card>
               <Card className="min-w-0">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs lg:text-sm font-medium">Successful</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
+                  <CardTitle className="text-xs sm:text-sm font-medium truncate">Successful</CardTitle>
+                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground shrink-0" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-xl lg:text-2xl font-bold text-green-600">
+                <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+                  <div className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600">
                     {data.callsStatusOverview.successful.toLocaleString()}
                   </div>
                 </CardContent>
               </Card>
               <Card className="min-w-0">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs lg:text-sm font-medium">Completed</CardTitle>
-                  <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
+                  <CardTitle className="text-xs sm:text-sm font-medium truncate">Completed</CardTitle>
+                  <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground shrink-0" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-xl lg:text-2xl font-bold">
+                <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+                  <div className="text-lg sm:text-xl lg:text-2xl font-bold">
                     {data.callsStatusOverview.completed.toLocaleString()}
                   </div>
                 </CardContent>
@@ -1065,15 +1069,19 @@ const OverviewPage = () => {
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
               <Card className="min-w-0">
-                <CardHeader>
-                  <CardTitle className="text-base lg:text-lg">Call Status Overview</CardTitle>
+                <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6">
+                  <CardTitle className="text-sm sm:text-base lg:text-lg">Call Status Overview</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
+                <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+                  <div className="space-y-2 sm:space-y-3">
                     {Object.entries(data.callsStatusOverview).map(([key, value]) => (
-                      <div key={key} className="flex justify-between items-center">
-                        <span className="text-xs lg:text-sm capitalize">{key.replace(/([A-Z])/g, " $1").trim()}</span>
-                        <span className="font-medium text-sm lg:text-base">{value.toLocaleString()}</span>
+                      <div key={key} className="flex justify-between items-center py-1">
+                        <span className="text-xs sm:text-sm capitalize truncate pr-2">
+                          {key.replace(/([A-Z])/g, " $1").trim()}
+                        </span>
+                        <span className="font-medium text-xs sm:text-sm lg:text-base shrink-0">
+                          {value.toLocaleString()}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -1081,15 +1089,19 @@ const OverviewPage = () => {
               </Card>
 
               <Card className="min-w-0">
-                <CardHeader>
-                  <CardTitle className="text-base lg:text-lg">Event Counts</CardTitle>
+                <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6">
+                  <CardTitle className="text-sm sm:text-base lg:text-lg">Event Counts</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
+                <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+                  <div className="space-y-2 sm:space-y-3">
                     {Object.entries(data.callEventsCounts).map(([key, value]) => (
-                      <div key={key} className="flex justify-between items-center">
-                        <span className="text-xs lg:text-sm capitalize">{key.replace(/([A-Z])/g, " $1").trim()}</span>
-                        <span className="font-medium text-sm lg:text-base">{value.toLocaleString()}</span>
+                      <div key={key} className="flex justify-between items-center py-1">
+                        <span className="text-xs sm:text-sm capitalize truncate pr-2">
+                          {key.replace(/([A-Z])/g, " $1").trim()}
+                        </span>
+                        <span className="font-medium text-xs sm:text-sm lg:text-base shrink-0">
+                          {value.toLocaleString()}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -1104,13 +1116,13 @@ const OverviewPage = () => {
         const data = analyticsTimelineData
         if (!data) return null
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <Card className="min-w-0">
-              <CardHeader className="space-y-3">
-                <div className="flex items-start justify-between gap-3">
+              <CardHeader className="space-y-3 px-3 sm:px-6 pt-3 sm:pt-6">
+                <div className="flex flex-col gap-3">
                   <div>
-                    <CardTitle>Calls Timeline</CardTitle>
-                    <CardDescription>Total calls and leads over time</CardDescription>
+                    <CardTitle className="text-sm sm:text-base lg:text-lg">Calls Timeline</CardTitle>
+                    <CardDescription className="text-xs sm:text-sm">Total calls and leads over time</CardDescription>
                   </div>
                   <RangeToolbarTimeline
                     preset={timePreset}
@@ -1120,16 +1132,22 @@ const OverviewPage = () => {
                   />
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="h-[220px] sm:h-[250px] lg:h-[300px]">
+              <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+                <div className="h-[200px] sm:h-[250px] lg:h-[300px] xl:h-[350px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={data.callsStatusTimeLine}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" tickFormatter={(v) => new Date(v).toLocaleDateString()} fontSize={12} />
-                      <YAxis fontSize={12} />
+                      <XAxis
+                        dataKey="date"
+                        tickFormatter={(v) => new Date(v).toLocaleDateString()}
+                        fontSize={10}
+                        className="sm:text-xs"
+                      />
+                      <YAxis fontSize={10} className="sm:text-xs" />
                       <Tooltip
                         labelFormatter={(v) => new Date(v).toLocaleDateString()}
                         formatter={(value: number, name: string) => [value.toLocaleString(), name]}
+                        contentStyle={{ fontSize: "12px" }}
                       />
                       <Line
                         type="monotone"
@@ -1154,20 +1172,32 @@ const OverviewPage = () => {
             </Card>
 
             <Card className="min-w-0">
-              <CardHeader>
-                <CardTitle>Average Call Duration</CardTitle>
-                <CardDescription>Average call duration over time (minutes)</CardDescription>
+              <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6">
+                <CardTitle className="text-sm sm:text-base lg:text-lg">Average Call Duration</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">
+                  Average call duration over time (minutes)
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="h-[220px] sm:h-[250px] lg:h-[300px]">
+              <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+                <div className="h-[200px] sm:h-[250px] lg:h-[300px] xl:h-[350px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={data.callsAverageTimeLine}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" tickFormatter={(v) => new Date(v).toLocaleDateString()} fontSize={12} />
-                      <YAxis fontSize={12} tickFormatter={(v) => `${Math.round(Number(v) / 60)}m`} />
+                      <XAxis
+                        dataKey="date"
+                        tickFormatter={(v) => new Date(v).toLocaleDateString()}
+                        fontSize={10}
+                        className="sm:text-xs"
+                      />
+                      <YAxis
+                        fontSize={10}
+                        className="sm:text-xs"
+                        tickFormatter={(v) => `${Math.round(Number(v) / 60)}m`}
+                      />
                       <Tooltip
                         labelFormatter={(v) => new Date(v).toLocaleDateString()}
                         formatter={(v) => [`${Math.round(Number(v) / 60)} minutes`, "Average Duration"]}
+                        contentStyle={{ fontSize: "12px" }}
                       />
                       <Line
                         type="monotone"
@@ -1190,90 +1220,114 @@ const OverviewPage = () => {
         const data = analyticsPerfData
         if (!data) return null
         return (
-          <div className="space-y-6">
-            {/* Unified filter bar (one filter for ALL widgets below) */}
+          <div className="space-y-4 sm:space-y-6">
             <Card className="min-w-0">
-              <CardHeader className="space-y-2">
-                <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3">
+              <CardHeader className="space-y-2 px-3 sm:px-6 pt-3 sm:pt-6">
+                <div className="flex flex-col gap-3">
                   <div>
-                    <CardTitle>Performance</CardTitle>
-                    <CardDescription>One time-range filter controls all charts</CardDescription>
+                    <CardTitle className="text-sm sm:text-base lg:text-lg">Performance</CardTitle>
+                    <CardDescription className="text-xs sm:text-sm">
+                      One time-range filter controls all charts
+                    </CardDescription>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2">
-                    {(
-                      [
-                        { key: "today", label: "Today" },
-                        { key: "yesterday", label: "Yesterday" },
-                        { key: "thisWeek", label: "This Week" },
-                        { key: "lastWeek", label: "Last Week" },
-                        { key: "thisMonth", label: "This Month" },
-                      ] as { key: PresetKey; label: string }[]
-                    ).map((p) => (
-                      <Button
-                        key={p.key}
-                        size="sm"
-                        variant={perfPreset === p.key ? "default" : "outline"}
-                        onClick={() => setPerfPreset(p.key)}
-                      >
-                        {p.label}
-                      </Button>
-                    ))}
-
-                    {/* Custom days */}
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        min={1}
-                        placeholder="Days (e.g. 2, 4, 9...)"
-                        className="h-9 w-40 rounded-md border px-2 text-sm"
-                        value={perfCustomDays}
-                        onChange={(e) => setPerfCustomDays(e.target.value.replace(/[^\d]/g, ""))}
-                      />
+                  <div className="flex flex-col gap-3">
+                    {/* Preset buttons */}
+                    <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                      {(
+                        [
+                          { key: "today", label: "Today" },
+                          { key: "yesterday", label: "Yesterday" },
+                          { key: "thisWeek", label: "This Week" },
+                          { key: "lastWeek", label: "Last Week" },
+                          { key: "thisMonth", label: "This Month" },
+                        ] as { key: PresetKey; label: string }[]
+                      ).map((p) => (
+                        <Button
+                          key={p.key}
+                          size="sm"
+                          variant={perfPreset === p.key ? "default" : "outline"}
+                          onClick={() => setPerfPreset(p.key)}
+                          className="text-xs sm:text-sm"
+                        >
+                          {p.label}
+                        </Button>
+                      ))}
                     </div>
 
-                    {/* From - To */}
-                    <input
-                      type="date"
-                      className="h-9 rounded-md border px-2 text-sm"
-                      value={perfCustomFrom}
-                      onChange={(e) => setPerfCustomFrom(e.target.value)}
-                    />
-                    <span className="text-xs text-gray-500">to</span>
-                    <input
-                      type="date"
-                      className="h-9 rounded-md border px-2 text-sm"
-                      value={perfCustomTo}
-                      onChange={(e) => setPerfCustomTo(e.target.value)}
-                    />
+                    {/* Custom inputs */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+                      {/* Custom days */}
+                      <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <input
+                          type="number"
+                          min={1}
+                          placeholder="Days (e.g. 2, 4, 9...)"
+                          className="h-9 w-full sm:w-32 lg:w-40 rounded-md border px-2 text-xs sm:text-sm"
+                          value={perfCustomDays}
+                          onChange={(e) => setPerfCustomDays(e.target.value.replace(/[^\d]/g, ""))}
+                        />
+                      </div>
 
-                    <Button size="sm" onClick={applyPerformanceFilter}>
-                      Apply
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={resetPerformanceFilter}>
-                      Reset
-                    </Button>
+                      {/* From - To */}
+                      <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <input
+                          type="date"
+                          className="h-9 w-full sm:w-auto rounded-md border px-2 text-xs sm:text-sm"
+                          value={perfCustomFrom}
+                          onChange={(e) => setPerfCustomFrom(e.target.value)}
+                        />
+                        <span className="text-xs text-gray-500 shrink-0">to</span>
+                        <input
+                          type="date"
+                          className="h-9 w-full sm:w-auto rounded-md border px-2 text-xs sm:text-sm"
+                          value={perfCustomTo}
+                          onChange={(e) => setPerfCustomTo(e.target.value)}
+                        />
+                      </div>
+
+                      {/* Action buttons */}
+                      <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <Button size="sm" onClick={applyPerformanceFilter} className="text-xs sm:text-sm">
+                          Apply
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={resetPerformanceFilter}
+                          className="text-xs sm:text-sm bg-transparent"
+                        >
+                          Reset
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </CardHeader>
             </Card>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <Card className="min-w-0">
-                <CardHeader>
-                  <CardTitle>Pickup Rate</CardTitle>
-                  <CardDescription>Call pickup rate over time (%)</CardDescription>
+                <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6">
+                  <CardTitle className="text-sm sm:text-base lg:text-lg">Pickup Rate</CardTitle>
+                  <CardDescription className="text-xs sm:text-sm">Call pickup rate over time (%)</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="h-[200px] lg:h-[250px]">
+                <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+                  <div className="h-[180px] sm:h-[200px] lg:h-[250px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={data.callsPickupRateTimeLine}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="date" tickFormatter={(v) => new Date(v).toLocaleDateString()} fontSize={12} />
-                        <YAxis fontSize={12} domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
+                        <XAxis
+                          dataKey="date"
+                          tickFormatter={(v) => new Date(v).toLocaleDateString()}
+                          fontSize={10}
+                          className="sm:text-xs"
+                        />
+                        <YAxis fontSize={10} className="sm:text-xs" domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
                         <Tooltip
                           labelFormatter={(v) => new Date(v).toLocaleDateString()}
                           formatter={(v) => [`${v}%`, "Pickup Rate"]}
+                          contentStyle={{ fontSize: "12px" }}
                         />
                         <Line
                           type="monotone"
@@ -1290,20 +1344,26 @@ const OverviewPage = () => {
               </Card>
 
               <Card className="min-w-0">
-                <CardHeader>
-                  <CardTitle>Success Rate</CardTitle>
-                  <CardDescription>Call success rate over time (%)</CardDescription>
+                <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6">
+                  <CardTitle className="text-sm sm:text-base lg:text-lg">Success Rate</CardTitle>
+                  <CardDescription className="text-xs sm:text-sm">Call success rate over time (%)</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="h-[200px] lg:h-[250px]">
+                <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+                  <div className="h-[180px] sm:h-[200px] lg:h-[250px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={data.callsSuccessRateTimeLine}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="date" tickFormatter={(v) => new Date(v).toLocaleDateString()} fontSize={12} />
-                        <YAxis fontSize={12} domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
+                        <XAxis
+                          dataKey="date"
+                          tickFormatter={(v) => new Date(v).toLocaleDateString()}
+                          fontSize={10}
+                          className="sm:text-xs"
+                        />
+                        <YAxis fontSize={10} className="sm:text-xs" domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
                         <Tooltip
                           labelFormatter={(v) => new Date(v).toLocaleDateString()}
                           formatter={(v) => [`${v}%`, "Success Rate"]}
+                          contentStyle={{ fontSize: "12px" }}
                         />
                         <Line
                           type="monotone"
@@ -1320,28 +1380,42 @@ const OverviewPage = () => {
               </Card>
             </div>
 
-            {/* Cost Analysis (auto-updates with unified performance filter) */}
+            {/* Cost Analysis */}
             <Card className="min-w-0">
-              <CardHeader className="space-y-1">
-                <CardTitle>Cost Analysis</CardTitle>
-                <CardDescription>Total cost and average cost per call over time</CardDescription>
+              <CardHeader className="space-y-1 px-3 sm:px-6 pt-3 sm:pt-6">
+                <CardTitle className="text-sm sm:text-base lg:text-lg">Cost Analysis</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">
+                  Total cost and average cost per call over time
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="h-[230px] sm:h-[260px] lg:h-[300px]">
+              <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+                <div className="h-[200px] sm:h-[230px] lg:h-[300px] xl:h-[350px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={ourCostTimelinePerf}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" tickFormatter={(v) => new Date(v).toLocaleDateString()} fontSize={12} />
-                      <YAxis yAxisId="left" fontSize={12} tickFormatter={(v: number) => `$${v.toFixed(2)}`} />
+                      <XAxis
+                        dataKey="date"
+                        tickFormatter={(v) => new Date(v).toLocaleDateString()}
+                        fontSize={10}
+                        className="sm:text-xs"
+                      />
+                      <YAxis
+                        yAxisId="left"
+                        fontSize={10}
+                        className="sm:text-xs"
+                        tickFormatter={(v: number) => `$${v.toFixed(2)}`}
+                      />
                       <YAxis
                         yAxisId="right"
                         orientation="right"
-                        fontSize={12}
+                        fontSize={10}
+                        className="sm:text-xs"
                         tickFormatter={(v: number) => `$${v.toFixed(3)}`}
                       />
                       <Tooltip<number, string>
                         labelFormatter={(v) => new Date(v).toLocaleDateString()}
                         formatter={priceTooltipFormatter}
+                        contentStyle={{ fontSize: "12px" }}
                       />
                       <Line
                         yAxisId="left"
@@ -1367,31 +1441,32 @@ const OverviewPage = () => {
               </CardContent>
             </Card>
 
-            {/* Sentiment in Performance */}
             <Card className="min-w-0">
-              <CardHeader>
-                <CardTitle className="text-base lg:text-lg">Sentiment Analysis</CardTitle>
-                <CardDescription className="text-sm">Distribution of call sentiments</CardDescription>
+              <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6">
+                <CardTitle className="text-sm sm:text-base lg:text-lg">Sentiment Analysis</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">Distribution of call sentiments</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-                  <div className="space-y-3 lg:space-y-4">
+                  <div className="space-y-2 sm:space-y-3 lg:space-y-4">
                     {Object.entries(data.callsSentimentOverview).map(([key, value]) => {
                       const total = Object.values(data.callsSentimentOverview).reduce((a, b) => a + b, 0)
                       const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : "0"
                       return (
-                        <div key={key} className="flex items-center justify-between p-2 lg:p-3 rounded-lg border">
-                          <div className="flex items-center space-x-2 lg:space-x-3">
+                        <div key={key} className="flex items-center justify-between p-2 sm:p-3 rounded-lg border">
+                          <div className="flex items-center space-x-2 lg:space-x-3 min-w-0">
                             <div
-                              className="w-3 h-3 lg:w-4 lg:h-4 rounded-full"
+                              className="w-3 h-3 sm:w-4 sm:h-4 rounded-full shrink-0"
                               style={{ backgroundColor: SENTIMENT_COLORS[key as keyof typeof SENTIMENT_COLORS] }}
                             />
-                            <span className="text-sm lg:text-base capitalize">
+                            <span className="text-xs sm:text-sm lg:text-base capitalize truncate">
                               {key.replace(/([A-Z])/g, " $1").trim()}
                             </span>
                           </div>
-                          <div className="text-right">
-                            <span className="font-semibold text-sm lg:text-base">{value.toLocaleString()}</span>
+                          <div className="text-right shrink-0">
+                            <span className="font-semibold text-xs sm:text-sm lg:text-base">
+                              {value.toLocaleString()}
+                            </span>
                             <span className="text-xs lg:text-sm text-gray-500 ml-1 lg:ml-2">({percentage}%)</span>
                           </div>
                         </div>
@@ -1400,7 +1475,7 @@ const OverviewPage = () => {
                   </div>
 
                   <div className="flex justify-center mt-4 lg:mt-0">
-                    <div className="h-[220px] w-[220px] sm:h-[260px] sm:w-[260px] lg:h-[300px] lg:w-[300px]">
+                    <div className="h-[200px] w-[200px] sm:h-[220px] sm:w-[220px] lg:h-[300px] lg:w-[300px]">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
@@ -1417,6 +1492,7 @@ const OverviewPage = () => {
                             dataKey="value"
                             label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                             labelLine={false}
+                            fontSize={10}
                           >
                             {Object.entries(data.callsSentimentOverview).map(([key], index) => (
                               <Cell
@@ -1425,7 +1501,10 @@ const OverviewPage = () => {
                               />
                             ))}
                           </Pie>
-                          <Tooltip formatter={(value: number, name: string) => [value.toLocaleString(), name]} />
+                          <Tooltip
+                            formatter={(value: number, name: string) => [value.toLocaleString(), name]}
+                            contentStyle={{ fontSize: "12px" }}
+                          />
                         </PieChart>
                       </ResponsiveContainer>
                     </div>
@@ -1434,27 +1513,29 @@ const OverviewPage = () => {
               </CardContent>
             </Card>
 
-            {/* Events: Call Labels + Calls by Hour */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <Card className="min-w-0">
-                <CardHeader>
-                  <CardTitle>Call Labels</CardTitle>
-                  <CardDescription>Distribution of call labels</CardDescription>
+                <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6">
+                  <CardTitle className="text-sm sm:text-base lg:text-lg">Call Labels</CardTitle>
+                  <CardDescription className="text-xs sm:text-sm">Distribution of call labels</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
+                <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+                  <div className="space-y-2 sm:space-y-3">
                     {data.callLabelCount.map((label) => {
                       const total = data.callLabelCount.reduce((sum, l) => sum + l.count, 0)
                       const percentage = total > 0 ? ((label.count / total) * 100).toFixed(1) : "0"
                       return (
-                        <div key={label.id} className="flex items-center justify-between p-3 rounded-lg border">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: label.color }} />
-                            <span>{label.name}</span>
+                        <div key={label.id} className="flex items-center justify-between p-2 sm:p-3 rounded-lg border">
+                          <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+                            <div
+                              className="w-3 h-3 sm:w-4 sm:h-4 rounded-full shrink-0"
+                              style={{ backgroundColor: label.color }}
+                            />
+                            <span className="text-xs sm:text-sm truncate">{label.name}</span>
                           </div>
-                          <div className="text-right">
-                            <span className="font-semibold">{label.count.toLocaleString()}</span>
-                            <span className="text-sm text-gray-500 ml-2">({percentage}%)</span>
+                          <div className="text-right shrink-0">
+                            <span className="font-semibold text-xs sm:text-sm">{label.count.toLocaleString()}</span>
+                            <span className="text-xs sm:text-sm text-gray-500 ml-1 sm:ml-2">({percentage}%)</span>
                           </div>
                         </div>
                       )
@@ -1464,20 +1545,26 @@ const OverviewPage = () => {
               </Card>
 
               <Card className="min-w-0">
-                <CardHeader>
-                  <CardTitle>Calls by Hour</CardTitle>
-                  <CardDescription>Call distribution throughout the day</CardDescription>
+                <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6">
+                  <CardTitle className="text-sm sm:text-base lg:text-lg">Calls by Hour</CardTitle>
+                  <CardDescription className="text-xs sm:text-sm">Call distribution throughout the day</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="h-[230px] sm:h-[260px] lg:h-[300px]">
+                <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+                  <div className="h-[200px] sm:h-[230px] lg:h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={data.callsByHourDayOfWeeks}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="hourOfDay" fontSize={12} tickFormatter={(v) => `${v}:00`} />
-                        <YAxis fontSize={12} />
+                        <XAxis
+                          dataKey="hourOfDay"
+                          fontSize={10}
+                          className="sm:text-xs"
+                          tickFormatter={(v) => `${v}:00`}
+                        />
+                        <YAxis fontSize={10} className="sm:text-xs" />
                         <Tooltip
                           labelFormatter={(v) => `${v}:00`}
                           formatter={(v: number) => [v.toLocaleString(), "Calls"]}
+                          contentStyle={{ fontSize: "12px" }}
                         />
                         <Bar dataKey="count" fill="#3b82f6" radius={[2, 2, 0, 0]} />
                       </BarChart>
@@ -1507,38 +1594,38 @@ const OverviewPage = () => {
           />
         )}
 
-        {/* Sidebar */}
         <div
           className={cn(
-            "fixed inset-y-0 left-0 w-80 sm:w-72 md:w-64 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-300 ease-in-out z-30",
+            "fixed inset-y-0 left-0 w-[280px] sm:w-72 md:w-64 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-300 ease-in-out z-30",
             "lg:translate-x-0 lg:static lg:inset-0 lg:z-auto",
             sidebarOpen ? "translate-x-0" : "-translate-x-full",
           )}
         >
           {/* Mobile close button */}
-          <div className="flex items-center justify-between p-4 lg:hidden border-b border-gray-100">
-            <h2 className="text-lg font-semibold text-gray-900">Dashboard</h2>
+          <div className="flex items-center justify-between p-3 sm:p-4 lg:hidden border-b border-gray-100">
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900">Dashboard</h2>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+              className="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors touch-manipulation"
             >
-              <CloseIcon className="h-5 w-5" />
+              <CloseIcon className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
           </div>
 
-          <span className="relative block h-8 w-[140px]">
-                  <Image
-                    src="https://www.ai-scaleup.com/wp-content/uploads/2024/03/Logo-AI-ScaleUp-300x59-1-300x59.png"
-                    alt="Digital Coach logo"
-                    fill
-                    unoptimized
-                    sizes="140px"
-                    className="object-contain"
-                    priority
-                  />
-                </span>
+          <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-200">
+            <span className="relative block h-6 sm:h-8 w-[120px] sm:w-[140px]">
+              <Image
+                src="https://www.ai-scaleup.com/wp-content/uploads/2024/03/Logo-AI-ScaleUp-300x59-1-300x59.png"
+                alt="Digital Coach logo"
+                fill
+                unoptimized
+                sizes="(max-width: 640px) 120px, 140px"
+                className="object-contain"
+                priority
+              />
+            </span>
+          </div>
 
-          {/* Campaign selector */}
           {campaigns.length > 0 ? (
             <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-200">
               <div className="space-y-3 sm:space-y-4">
@@ -1558,14 +1645,13 @@ const OverviewPage = () => {
                   </Select>
                 </div>
 
-                {/* Campaign toggle */}
                 <div className="flex items-center justify-between">
                   <span className="text-xs sm:text-sm font-medium text-gray-700">Campaign Status</span>
                   <button
                     onClick={handleCampaign}
                     disabled={isCampaignChecking}
                     className={cn(
-                      "relative inline-flex h-7 w-14 sm:h-8 sm:w-16 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50",
+                      "relative inline-flex h-6 w-12 sm:h-7 sm:w-14 lg:h-8 lg:w-16 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 touch-manipulation",
                       isCampaignOn === null ? "bg-neutral-300" : isCampaignOn ? "bg-green-100" : "bg-red-100",
                     )}
                   >
@@ -1610,7 +1696,6 @@ const OverviewPage = () => {
             </div>
           )}
 
-          {/* Navigation */}
           <nav className="flex-1 p-3 sm:p-4 overflow-y-auto">
             <div className="space-y-1">
               {sidebarItems.map((item) => {
@@ -1637,50 +1722,52 @@ const OverviewPage = () => {
             </div>
           </nav>
 
-          {/* Actions */}
           <div className="p-3 sm:p-4 border-t border-gray-200 space-y-2">
             <Button
               variant="outline"
               size="sm"
               onClick={handleRefresh}
               disabled={refreshing || loading}
-              className="w-full bg-transparent h-10 sm:h-9 text-sm touch-manipulation"
+              className="w-full bg-transparent h-9 sm:h-10 text-xs sm:text-sm touch-manipulation"
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
+              <RefreshCw className={`h-3 w-3 sm:h-4 sm:w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
               Refresh
             </Button>
             <Button
               variant="destructive"
               size="sm"
               onClick={clearStoredCredentials}
-              className="w-full bg-transparent h-10 sm:h-9 text-sm touch-manipulation"
+              className="w-full bg-transparent h-9 sm:h-10 text-xs sm:text-sm touch-manipulation"
             >
               Clear Credentials
             </Button>
           </div>
         </div>
 
-        {/* Main Content */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Mobile header */}
-          <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
+          <div className="lg:hidden bg-white border-b border-gray-200 px-3 sm:px-4 py-3 flex items-center justify-between sticky top-0 z-10">
             <button
               onClick={() => setSidebarOpen(true)}
               className="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 touch-manipulation"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
-            <h1 className="text-base sm:text-lg font-semibold text-gray-900 truncate px-2">Analytics Dashboard</h1>
-            <div className="w-9" />
+            <h1 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900 truncate px-2">
+              Analytics Dashboard
+            </h1>
+            <div className="w-8 sm:w-9" />
           </div>
 
           {/* Content area */}
           <div className="flex-1 overflow-y-auto touch-pan-y" style={{ WebkitOverflowScrolling: "touch" }}>
             <div className="p-3 sm:p-4 lg:p-6 max-w-full">
               {analyticsLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                  <span className="text-sm lg:text-base">Loading analytics data...</span>
+                <div className="flex items-center justify-center py-8 sm:py-12">
+                  <div className="text-center">
+                    <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin mx-auto mb-2" />
+                    <span className="text-xs sm:text-sm lg:text-base">Loading analytics data...</span>
+                  </div>
                 </div>
               ) : (
                 renderContent()
